@@ -11,11 +11,13 @@ Mat mask;
 Mat mask_inv;
 
 void createMask() {
-
+    Mat img2_gray;
+    cvtColor(img2, img2_gray, COLOR_BGR2GRAY);
+    threshold(img2_gray, mask, 127, 255, THRESH_BINARY);
+    bitwise_not(mask, mask_inv);
 }
 
 void addImages() {
-    Mat img2_gray;
     Mat roi;
     Mat img_fg, img_bg;
     Mat dst;
@@ -25,10 +27,7 @@ void addImages() {
     //imshow("messi", img1);
     Rect overlay(0, 0, img2.cols, img2.rows);
     //imshow("logo", img2);
-    cvtColor(img2, img2_gray, COLOR_BGR2GRAY);
-    //imshow("logo gray", img2_gray);
-    threshold(img2_gray, mask, 127,255,THRESH_BINARY);
-    bitwise_not(mask, mask_inv);
+    createMask();
     //imshow("mask", mask);
     img1(overlay).copyTo(roi);
     //imshow("roi", roi);
