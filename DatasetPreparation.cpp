@@ -3,12 +3,44 @@
 
 using namespace cv;
 
+using std::cout;
+using std::cin;
+
+Mat img1, img2;
+Mat mask;
+Mat mask_inv;
+
 void createMask() {
 
 }
 
 void addImages() {
-
+    Mat img2_gray;
+    Mat roi;
+    Mat img_fg, img_bg;
+    Mat dst;
+    Mat result;
+    img1 = imread("messi.jpg");
+    img2 = imread("logo.png");
+    //imshow("messi", img1);
+    Rect overlay(0, 0, img2.cols, img2.rows);
+    //imshow("logo", img2);
+    cvtColor(img2, img2_gray, COLOR_BGR2GRAY);
+    //imshow("logo gray", img2_gray);
+    threshold(img2_gray, mask, 127,255,THRESH_BINARY);
+    bitwise_not(mask, mask_inv);
+    //imshow("mask", mask);
+    img1(overlay).copyTo(roi);
+    //imshow("roi", roi);
+    bitwise_and(roi, roi, img_bg, mask);
+    bitwise_and(img2, img2, img_fg, mask_inv);
+    //imshow("bg", img_bg);
+    //imshow("fg", img_fg);
+    add(img_bg, img_fg, dst);
+    img1.copyTo(result);
+    dst.copyTo(result(overlay));
+    imshow("result",result);
+    waitKey(0);
 }
 
 void findHomography() {
@@ -21,7 +53,7 @@ void transformImage() {
 
 void test(){
     Mat image;
-    image = imread("glasses.png");
+    image = imread("logo.png");
 
     imshow("res",image);
     waitKey(0);
@@ -29,6 +61,7 @@ void test(){
 
 int main()
 {
-    test();
+    //test();
+    addImages();
     return 0;
 }
