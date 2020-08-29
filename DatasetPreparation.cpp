@@ -1,12 +1,13 @@
 #include <iostream>
+#include <filesystem>
+
 #include "opencv2/opencv.hpp"
 
 using namespace cv;
+using namespace std::filesystem;
+using namespace std;
 
-using std::cout;
-using std::cin;
-using std::endl;
-using std::string;
+
 
 Mat img1, img2;
 Mat mask;
@@ -62,8 +63,6 @@ void addImages() {
     Mat img_fg, img_bg;
     Mat dst;
     Mat result;
-    img1 = imread("messi.jpg");
-    img2 = imread("logo.png");
     imshow("messi", img1);
     Rect overlay(centerImage(img1, img2));
     imshow("logo", img2);
@@ -95,10 +94,51 @@ void transformImage() {
 
 }
 
+string selectFile(string directory) {
+    map<int, string> files;
+    int i = 1;
+    int selection = 0;
+    path pathToDisplay(directory);
+
+    for (const auto& entry : directory_iterator(pathToDisplay)) {
+        const auto filename = entry.path().filename().string();
+        if (entry.is_regular_file()) {
+            cout << i << ". " << filename << endl;
+            files.insert({ i++,filename });
+        }
+    }
+    if (i > 2) {
+        while (selection < 1 || selection >= i) {
+            cout << "Type file number: ";
+            cin >> selection;
+            if (selection >= 1 && selection < i) {
+                break;
+            }
+            cout << "Number out of range." << endl;
+            cout << "Type number from 1 to " << i - 1 << endl;
+        }
+    }
+    else if (i == 2) {
+        selection = 1;
+    }
+    else {
+        return NULL;
+    }
+
+    return (directory + files[selection]);
+}
+
+void selectFiles() {
+    img1 = imread(selectFile("backgrounds/"));
+    cout << endl;
+    img2 = imread(selectFile("money/"));
+    cout << endl << endl;
+}
+
 
 int main()
 {
-    //test();
+    selectFiles();
     addImages();
     return 0;
 }
