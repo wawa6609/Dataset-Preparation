@@ -12,7 +12,7 @@
   * contains generated results
 
 ## Selecting files
-Function `selectFiles()` allows for selecting files containing objects or backgrounds.
+Function `selectFiles()` allows for selecting files containing objects and backgrounds.
 If object or background directory contains more than one file user will be prompted to select file from printed list.
 The object image will be stored in variable `img1` and the background image in variable `img2`.
 
