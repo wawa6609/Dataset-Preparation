@@ -25,12 +25,12 @@ Else program will allow user to create a mask using a constant threshold.
 The procedure is as follows:
 1. The preview of the mask with default threshold of 127 is shown to the user.
 2. User fill be promted to confirm that the threshold is correct answering Y or N.
-    * If user confirms with Y mask is saved to masks/<img1>_mask.png where <img1> is the filename of the object file
+    * If user confirms with Y mask is saved to masks/\<img1\>_mask.png where \<img1\> is the filename of the object file
     * If user declines with N they will be promped to type custom threshold (number from 0 to 255) and the procedure repeats until user confirms threshold value
   
 ## Adding images
 Function `addImages()` allows user to add images of the object and the background. Addition will be performed using appropriate mask which can be created or read from memory as described above. Object will be centered on the background image
-User can choose whether they want to save the result or not. If they choose so the file will be saved as results/<img1>_<img2>.png where img1 is the name of the object file and img2 is the name of the background file.
+User can choose whether they want to save the result or not. If they choose so the file will be saved as results/\<img1\>_\<img2\>.png where \<img1\> is the name of the object file and \<img2\> is the name of the background file.
   
 ## Finding homography
 Not yet implemented.
