@@ -25,6 +25,7 @@
   * FileNotFoundException.cpp contains corresponding implementations
 
 ## Selecting files
+`void selectFiles(Mat *img1, Mat *img2, string *img1_name, string *img2_name, bool *multiple)`
 
 Function `selectFiles()` allows for selecting files containing objects and backgrounds.
 If object or background directory contains more than one file user will be prompted to select file from printed list.
@@ -51,6 +52,7 @@ The procedure is as follows:
 
 Function `addImages()` allows user to add images of the object and the background. Addition will be performed using appropriate mask which can be created or read from memory as described above. Object will be centered on the background image.
 User can choose whether they want to save the result or not. If they choose so the file will be saved as results/\<img1\>_\<img2\>.png where \<img1\> is the name of the object file and \<img2\> is the name of the background file.
+The function returns result image as its output.
 The `multiple` parameter will be used in case of performing addition operation on all files.
   
 ## Finding homography
