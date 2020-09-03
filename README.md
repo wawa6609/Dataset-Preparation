@@ -2,7 +2,7 @@
 > **Program for preparing dataset for YOLO training**
 
 ## Files organization
-* backgrouds/
+* backgrounds/
   * contains pictures which will be used as backgrounds
 * masks/
   * contains masks for object pictures created with program
