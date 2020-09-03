@@ -29,16 +29,17 @@ void createMask(Mat *mask, Mat *mask_inv, Mat *img, string *img_name) {
     string mask_name = (*img_name).substr(0, (*img_name).find_last_of('.'));
     mask_name += "_mask.png";
     cout << "Creating the mask" << endl;
+    cout << "White color represents the background and black color represents the object" << endl;
     cvtColor((*img), img_gray, COLOR_BGR2GRAY);
     do {
         cout << "Trying with threshold of " << thresh << endl;
         threshold(img_gray, *mask, thresh, 255, THRESH_BINARY);
+        bitwise_not(*mask, *mask_inv);
         destroyAllWindows();
         imshow("mask", *mask);
         waitKey(1);
         cout << "Is the threshold correct? [Y/N]: ";
         cin >> answer;
-        bitwise_not(*mask, *mask_inv);
         toLowerCase(answer);
         if (answer == "y" || answer == "yes") {
             correct_thresh = true;
@@ -50,18 +51,21 @@ void createMask(Mat *mask, Mat *mask_inv, Mat *img, string *img_name) {
             cin >> thresh;
             cout << endl;
         }
+        else {
+            cout << "Type valid answer" << endl;
+        }
 
     } while (!correct_thresh);
     cout << "Mask created";
     imwrite(("masks/" + mask_name), *mask);
-    cout << " and saved" << endl;
+    cout << " and saved as " << mask_name << endl;
     cout << endl;
     destroyAllWindows();
 
 
 }
 
-void readMask(Mat* mask, Mat* mask_inv, Mat* img, string* img_name) {
+void readMask(Mat* mask, Mat* mask_inv, Mat* img, string* img_name, bool show=false) {
     string mask_path = "masks/";
     mask_path += (*img_name).substr(0, (*img_name).find_last_of('.'));
     mask_path += "_mask.png";
@@ -76,10 +80,12 @@ void readMask(Mat* mask, Mat* mask_inv, Mat* img, string* img_name) {
     }
     *mask = imread(mask_path, IMREAD_GRAYSCALE);
     bitwise_not(*mask, *mask_inv);
-    /*destroyAllWindows();
-    imshow("mask", mask);
-    imshow("mask_inv", mask_inv);
-    waitKey(0);*/
+    if (show) {
+        destroyAllWindows();
+        imshow("mask", *mask);
+        imshow("mask_inv", *mask_inv);
+        waitKey(0);
+    }
     destroyAllWindows();
     cout << "Mask was read from memory" << endl;
     cout << endl;
@@ -89,6 +95,13 @@ Rect centerImage(Mat *img1, Mat *img2) {
     int cx, cy;// center coordinates
     int x1, y1;//top coordinates of centered rectangle
     int w, h;// width and heigth of the centered rectangle
+    
+    if (((*img1).cols > (*img2).cols) || ((*img1).rows > (*img2).rows)) {
+        double k = min(((*img2).cols / (double)(*img1).cols), ((*img2).rows / (double)(*img1).rows));
+        int width = k * (*img1).cols;
+        int height = k * (*img1).rows;
+        resize(*img1, *img1,Size(width,height));
+    }
 
     w = (*img1).cols;
     h = (*img1).rows;
@@ -127,14 +140,13 @@ Mat addImages(Mat *img1, Mat *img2, string *img1_name, string *img2_name, bool *
     catch (exception) {
         createMask(&mask, &mask_inv, img1, img1_name);
     }
-    //createMask();
     (*img2)(overlay).copyTo(roi);
     /*imshow("roi", roi);
     waitKey(0);*/
     //return;
     bitwise_and(roi, roi, img_bg, mask);
-    //imshow("img_bg", img_bg);
-    //waitKey(0);
+    /*imshow("img_bg", img_bg);
+    waitKey(0);*/
     bitwise_and(*img1, *img1, img_fg, mask_inv);
     //imshow("img_fg", img_fg);
     //waitKey(0);

@@ -25,7 +25,7 @@ string selectFile(string directory) {
     }
     if (i > 2) {
         for (int j = 1; j < i; j++) {
-            cout << i << ". " << files[i] << endl;
+            cout << j << ". " << files[j] << endl;
         }
         cout << endl;
         while (selection < 1 || selection >= i) {
@@ -43,6 +43,7 @@ string selectFile(string directory) {
         selection = 1;
     }
     else {
+        cout << "There are no files in " << directory << endl;
         return NULL;
     }
 

@@ -6,6 +6,7 @@
 #include "opencv2/opencv.hpp"
 #include "FileNotFoundException.h"
 #include "FileHandling.h"
+#include <cmath>
 
 using namespace cv;
 using namespace std::filesystem;
@@ -16,7 +17,7 @@ bool askSave();
 
 void createMask(Mat* mask, Mat* mask_inv, Mat* img, string* img_name);
 
-void readMask(Mat* mask, Mat* mask_inv, Mat* img, string* img_name);
+void readMask(Mat* mask, Mat* mask_inv, Mat* img, string* img_name, bool show);
 
 Rect centerImage(Mat* img1, Mat* img2);
 
