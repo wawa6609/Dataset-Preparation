@@ -2,6 +2,7 @@
 > **Program for preparing dataset for YOLO training**
 
 ## Files organization
+### Directories
 * backgrounds/
   * contains pictures which will be used as backgrounds
 * masks/
@@ -10,6 +11,18 @@
   * contains pictures of objects
 * results/
   * contains generated results
+### Source files
+* DatasetPreparation.cpp
+  * contains the main program
+* FileHandling.h
+  * contains functions allowing for file handling
+  * FileHandling.cpp contains corresponding implementations
+* ImageOperations.h
+  * contains functions allowing for image operations
+  * ImageOperations.cpp contains corresponding implementations
+* FileNotFoundException.h
+  * contains custom FileNotFoundException exception class
+  * FileNotFoundException.cpp contains corresponding implementations
 
 ## Selecting files
 Function `selectFiles()` allows for selecting files containing objects and backgrounds.
