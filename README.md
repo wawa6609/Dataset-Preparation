@@ -1,5 +1,5 @@
 # Dataset Preparation
-Program for preparing dataset for YOLO training
+> **Program for preparing dataset for YOLO training**
 
 ## Files organization
 * backgrouds/
