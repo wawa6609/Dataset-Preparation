@@ -9,6 +9,8 @@
   * contains masks for object pictures created with program
 * objects/
   * contains pictures of objects
+* homographies/
+  * contains text files with inverted homography matrices
 * results/
   * contains generated results
 ### Source files
@@ -64,7 +66,12 @@ The function returns result image as its output.
 The `multiple` parameter will be used in case of performing addition operation on all files.
   
 ## Finding homography
-Not yet implemented.
+```c++
+Mat findHomographyMatrix();
+```
 
+Function `findHomographyMatrix()` allows user to create an inverted matrix of homography. 
+The homography matrix can be created in a calculation procedure using a sheet of paper.
+ 
 ## Transforming images
 Not yet implemented.
