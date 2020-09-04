@@ -174,11 +174,11 @@ void mouse_click(int event, int x, int y, int, void *params) {
         vector<Point2f>* points_in_image = get<1>(*args);
         Point p(x, y);
         (*points_in_image).push_back(p);
-        cout << p << endl; //i na ekran
+        cout << p << endl;
 
         if (get<2>(*args))
         {
-            circle(*image, p, 5, CV_RGB(255, 0, 0)); //w jego miejscu rysowane jest kolko
+            circle(*image, p, 5, CV_RGB(255, 0, 0));
             imshow("image", *image);
             waitKey(1);
         }
@@ -186,9 +186,32 @@ void mouse_click(int event, int x, int y, int, void *params) {
 }
 
 VideoCapture initializeCamera() {
-    //cout << "Do you want to use a system camera? [Y/N]";
-    //VideoCapture camera("rtsp://192.168.0.35:8080/h264_ulaw.sdp");
-    VideoCapture camera(0);
+    VideoCapture camera;
+    string answer;
+    int number;
+    bool correct_answer = false;
+    cout << "Do you want to use a system camera? [Y/N]: ";
+    cin >> answer;
+    answer = toLowerCase(answer);
+    while (!correct_answer) {
+        if ((answer == "y") || (answer == "yes")) {
+            correct_answer = true;
+            cout << "Select camera number (numbering from 0): ";
+            cin >> number;
+            camera.open(number);
+        }
+        else if ((answer == "n") || (answer == "no")) {
+            correct_answer = true;
+            cout << "Please type the camera address." << endl;
+            cout << "Format example: rstp://192.168.0.1:8080/h264_ulaw.sdp" << endl;
+            cin >> answer;
+            camera.open(answer);
+        }
+        else {
+            cout << "Please type a valid answer." << endl << endl;
+        }
+    }
+    
     camera.set(CAP_PROP_FRAME_WIDTH, 1280);
     camera.set(CAP_PROP_FRAME_HEIGHT, 720);
 
@@ -196,14 +219,20 @@ VideoCapture initializeCamera() {
 }
 
 Mat findHomographyMatrix() {
-    Mat image, warped_image, H;
+    Mat image, warped_image, H, H_inv;
     VideoCapture camera(initializeCamera());
     vector<Point2f> points_in_image;
     vector<Point2f>  points_on_object{ { 0, 0 },{ 3 * 210, 0 },{ 3 * 210, 3 * 297 },{ 0, 3 * 297 } };
     MouseClickArgs args;
 
-
-    if (!camera.isOpened()) throw CameraNotAvailableException("Camera not available", -1, -1);
+    try {
+        if (!camera.isOpened()) throw CameraNotAvailableException("Camera not available", -1, -1);
+    }
+    catch (const CameraNotAvailableException& e) {
+        cerr << e.what() << endl;
+        return Mat();
+    }
+    
 
     while (waitKey(1) != 27) { //the image is read from camera until user presses ESC key
     	camera >> image;
@@ -218,7 +247,7 @@ Mat findHomographyMatrix() {
     args = make_tuple(&image, &points_in_image, true);
     setMouseCallback("image", mouse_click, (void*)&args); 
     waitKey(1);
-    imshow("obraz", image);
+    imshow("image", image);
     waitKey(500);
     putText(image, String("Mark 4 points on the surface"), Point(0, 55), 0, 1, CV_RGB(255, 0, 0), 2);
     imshow("image", image);
@@ -233,11 +262,14 @@ Mat findHomographyMatrix() {
     imshow("image", image);
     waitKey();
     H = findHomography(points_in_image, points_on_object);
-    cout << "Homography matrix = " << H << endl;
+    H_inv = H.inv();
+    cout << "Homography matrix:"<< endl << H << endl;
+    cout << endl;
+    cout << "Inverted homography matrix:" << endl << H_inv << endl;
     warpPerspective(image, warped_image, H, Size(3 * 210, 3 * 297));
     imshow("warped image", warped_image);
     waitKey(0);
-    return H;
+    return H_inv;
 }
 
 
