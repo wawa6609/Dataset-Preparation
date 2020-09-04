@@ -13,7 +13,7 @@ using namespace cv;
 using namespace std::filesystem;
 using namespace std;
 
-typedef tuple <Mat*, vector<Point2f>*, bool> MouseClickArgs;
+typedef tuple <Mat*, vector<Point2f>*, bool, bool> MouseClickArgs;
 
 bool askSave();
 
@@ -25,6 +25,6 @@ Rect centerImage(Mat* img1, Mat* img2);
 
 Mat addImages(Mat* img1, Mat* img2, string* img1_name, string* img2_name, bool* multiple);
 
-Mat findHomographyMatrix();
+Mat findHomographyMatrix(bool display=false);
 
 void transformImage();

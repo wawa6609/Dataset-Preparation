@@ -174,9 +174,11 @@ void mouse_click(int event, int x, int y, int, void *params) {
         vector<Point2f>* points_in_image = get<1>(*args);
         Point p(x, y);
         (*points_in_image).push_back(p);
-        cout << p << endl;
 
-        if (get<2>(*args))
+        if (get<2>(*args)) {
+            cout << p << endl;
+        }
+        if (get<3>(*args))
         {
             circle(*image, p, 5, CV_RGB(255, 0, 0));
             imshow("image", *image);
@@ -221,13 +223,13 @@ VideoCapture initializeCamera() {
     return camera;
 }
 
-Mat findHomographyMatrix() {
+Mat findHomographyMatrix(bool display) {
     Mat image, warped_image, H, H_inv;
-    VideoCapture camera(initializeCamera());
+    MouseClickArgs args;
     vector<Point2f> points_in_image;
     vector<Point2f>  points_on_object{ { 0, 0 },{ 3 * 210, 0 },{ 3 * 210, 3 * 297 },{ 0, 3 * 297 } };
-    MouseClickArgs args;
     bool save = askSave();
+    VideoCapture camera(initializeCamera());    
 
     try {
         if (!camera.isOpened()) throw CameraNotAvailableException("Camera not available", -1, -1);
@@ -248,7 +250,7 @@ Mat findHomographyMatrix() {
     camera >> image;
     imshow("image", image);
     waitKey(1);
-    args = make_tuple(&image, &points_in_image, true);
+    args = make_tuple(&image, &points_in_image, false, true);
     setMouseCallback("image", mouse_click, (void*)&args); 
     waitKey(1);
     imshow("image", image);
@@ -267,12 +269,14 @@ Mat findHomographyMatrix() {
     waitKey();
     H = findHomography(points_in_image, points_on_object);
     H_inv = H.inv();
-    cout << "Homography matrix:"<< endl << H << endl;
-    cout << endl;
-    cout << "Inverted homography matrix:" << endl << H_inv << endl;
+    if (display) {
+        cout << "Homography matrix:" << endl << H << endl;
+        cout << endl;
+        cout << "Inverted homography matrix:" << endl << H_inv << endl;
+    }
     warpPerspective(image, warped_image, H, Size(3 * 210, 3 * 297));
     imshow("warped image", warped_image);
-    waitKey(0);
+    waitKey(120);
     if (save) {
         saveMatrix(H_inv);
     }

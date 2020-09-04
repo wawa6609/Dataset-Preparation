@@ -13,8 +13,7 @@ int main()
     //selectFiles(&img1, &img2, &img1_name, &img2_name, &multiple);
     //createMask(&mask, &mask_inv, &img1, &img1_name);
     //addImages(&img1, &img2, &img1_name, &img2_name, &multiple);
-    //findHomographyMatrix();
-    //readMatrix("tgjekwtwvr.txt");
+    findHomographyMatrix();
     cout << readMatrix("tgjekwtwvr.txt") << endl;
     return 0;
 }
