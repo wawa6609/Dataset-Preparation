@@ -198,13 +198,16 @@ VideoCapture initializeCamera() {
             correct_answer = true;
             cout << "Select camera number (numbering from 0): ";
             cin >> number;
+            cout << endl;
             camera.open(number);
         }
         else if ((answer == "n") || (answer == "no")) {
             correct_answer = true;
             cout << "Please type the camera address." << endl;
             cout << "Format example: rstp://192.168.0.1:8080/h264_ulaw.sdp" << endl;
+            cout << "Address: ";
             cin >> answer;
+            cout << endl;
             camera.open(answer);
         }
         else {
@@ -224,6 +227,7 @@ Mat findHomographyMatrix() {
     vector<Point2f> points_in_image;
     vector<Point2f>  points_on_object{ { 0, 0 },{ 3 * 210, 0 },{ 3 * 210, 3 * 297 },{ 0, 3 * 297 } };
     MouseClickArgs args;
+    bool save = askSave();
 
     try {
         if (!camera.isOpened()) throw CameraNotAvailableException("Camera not available", -1, -1);
@@ -269,6 +273,9 @@ Mat findHomographyMatrix() {
     warpPerspective(image, warped_image, H, Size(3 * 210, 3 * 297));
     imshow("warped image", warped_image);
     waitKey(0);
+    if (save) {
+        saveMatrix(H_inv);
+    }
     return H_inv;
 }
 

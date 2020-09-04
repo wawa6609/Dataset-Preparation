@@ -2,9 +2,7 @@
 
 constexpr auto BG_DIR = "backgrounds/";
 constexpr auto OBJ_DIR = "objects/";
-
-string img1_name, img2_name;
-Mat img1, img2;
+constexpr auto MAT_DIR = "homografies/";
 
 bool test_exist(string name) {
     struct stat buffer;
@@ -58,6 +56,53 @@ void selectFiles(Mat *img1, Mat *img2, string* img1_name, string* img2_name, boo
     *img2 = imread(BG_DIR + *img2_name);
     cout << "Reading "<< BG_DIR << *img2_name << " as img2" << endl;
     cout << endl;
-};
+}
 
 
+string generateHash() {
+    string hash= "";
+    char c;
+    for (int i = 0; i < 10; i++) {
+        c = rand() % 25+97;
+        hash += c;
+    }
+    return hash;
+}
+
+void saveMatrix(Mat m) {
+    string filename;
+    ofstream file;
+    do {
+        filename = generateHash() + ".txt";
+    } while (test_exist(MAT_DIR + filename));
+    file.open(MAT_DIR + filename, 'w');
+    for (int i = 0; i < m.rows; i++) {
+        for (int j = 0; j < m.cols; j++) {
+            if (j != 0) {
+                file << " ";
+            }
+            file << round((m.at<double>(i,j)*100))/100;
+        }
+        file << endl;
+    }
+    file.close();
+    cout << "File saved as " << filename << endl;
+}
+
+Mat readMatrix(string filename, bool display) {
+    Mat m=Mat::zeros(3,3,CV_32F);
+    ifstream file;
+    float num;
+    int start_pos=0, end_pos=0;
+    file.open(MAT_DIR + filename);
+    for (int i = 0; i < m.rows; i++) {
+        for (int j = 0; j < m.cols; j++) {
+            file >> num;
+            m.at<float>(i, j) = num;
+        }
+    }
+    if (display) {
+        cout << m << endl;
+    }
+    return m;
+}
