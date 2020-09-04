@@ -162,7 +162,6 @@
     <ClInclude Include="FileHandling.h" />
     <ClInclude Include="FileNotFoundException.h" />
     <ClInclude Include="ImageOperations.h" />
-    <ClInclude Include="resource.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
