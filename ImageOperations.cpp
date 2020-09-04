@@ -1,12 +1,6 @@
 #include "ImageOperations.h"
 
 
-Mat mask;
-Mat mask_inv;
-
-bool multiple;
-
-
 bool askSave() {
     string answer;
     cout << "Do you want to save the result [Y/N]: ";
@@ -172,9 +166,80 @@ Mat addImages(Mat *img1, Mat *img2, string *img1_name, string *img2_name, bool *
     return result;
 }
 
-void findHomography() {
+void mouse_click(int event, int x, int y, int, void *params) {
+    if (event == EVENT_LBUTTONDOWN)
+    {
+        MouseClickArgs *args =static_cast<MouseClickArgs*>(params);
+        Mat *image = get<0>(*args);
+        vector<Point2f>* points_in_image = get<1>(*args);
+        Point p(x, y);
+        (*points_in_image).push_back(p);
+        cout << p << endl; //i na ekran
 
+        if (get<2>(*args))
+        {
+            circle(*image, p, 5, CV_RGB(255, 0, 0)); //w jego miejscu rysowane jest kolko
+            imshow("image", *image);
+            waitKey(1);
+        }
+    }
 }
+
+VideoCapture initializeCamera() {
+    //cout << "Do you want to use a system camera? [Y/N]";
+    //VideoCapture camera("rtsp://192.168.0.35:8080/h264_ulaw.sdp");
+    VideoCapture camera(0);
+    camera.set(CAP_PROP_FRAME_WIDTH, 1280);
+    camera.set(CAP_PROP_FRAME_HEIGHT, 720);
+
+    return camera;
+}
+
+Mat findHomographyMatrix() {
+    Mat image, warped_image, H;
+    VideoCapture camera(initializeCamera());
+    vector<Point2f> points_in_image;
+    vector<Point2f>  points_on_object{ { 0, 0 },{ 3 * 210, 0 },{ 3 * 210, 3 * 297 },{ 0, 3 * 297 } };
+    MouseClickArgs args;
+
+
+    if (!camera.isOpened()) throw CameraNotAvailableException("Camera not available", -1, -1);
+
+    while (waitKey(1) != 27) { //the image is read from camera until user presses ESC key
+    	camera >> image;
+    	if (image.data == NULL) break; //protection - loop stops when there is no new image
+    	putText(image, String("Press ESC in order to capture still image"), Point(0, 25), 0, 1, CV_RGB(255, 0, 0), 2);
+    	imshow("image", image);
+    }
+
+    camera >> image;
+    imshow("image", image);
+    waitKey(1);
+    args = make_tuple(&image, &points_in_image, true);
+    setMouseCallback("image", mouse_click, (void*)&args); 
+    waitKey(1);
+    imshow("obraz", image);
+    waitKey(500);
+    putText(image, String("Mark 4 points on the surface"), Point(0, 55), 0, 1, CV_RGB(255, 0, 0), 2);
+    imshow("image", image);
+    waitKey(1);
+    while (points_in_image.size() < 4) waitKey(1);
+
+    for (int i = 0; i < 4; i++)
+        line(image, points_in_image[i], points_in_image[(i + 1) % 4], CV_RGB(0, 255, 100), 2);
+
+
+    putText(image, String("Object marked. Press any key..."), Point(0, 85), 0, 1, CV_RGB(255, 0, 0), 2);
+    imshow("image", image);
+    waitKey();
+    H = findHomography(points_in_image, points_on_object);
+    cout << "Homography matrix = " << H << endl;
+    warpPerspective(image, warped_image, H, Size(3 * 210, 3 * 297));
+    imshow("warped image", warped_image);
+    waitKey(0);
+    return H;
+}
+
 
 void transformImage() {
 

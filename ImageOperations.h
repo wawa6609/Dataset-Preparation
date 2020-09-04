@@ -5,6 +5,7 @@
 
 #include "opencv2/opencv.hpp"
 #include "FileNotFoundException.h"
+#include "CameraNotAvailableException.h"
 #include "FileHandling.h"
 #include <cmath>
 
@@ -12,6 +13,7 @@ using namespace cv;
 using namespace std::filesystem;
 using namespace std;
 
+typedef tuple <Mat*, vector<Point2f>*, bool> MouseClickArgs;
 
 bool askSave();
 
@@ -23,6 +25,6 @@ Rect centerImage(Mat* img1, Mat* img2);
 
 Mat addImages(Mat* img1, Mat* img2, string* img1_name, string* img2_name, bool* multiple);
 
-void findHomography();
+Mat findHomographyMatrix();
 
 void transformImage();

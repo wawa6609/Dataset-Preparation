@@ -151,12 +151,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CameraNotAvailableException.cpp" />
     <ClCompile Include="DatasetPreparation.cpp" />
     <ClCompile Include="FileHandling.cpp" />
     <ClCompile Include="FileNotFoundException.cpp" />
     <ClCompile Include="ImageOperations.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CameraNotAvailableException.h" />
     <ClInclude Include="FileHandling.h" />
     <ClInclude Include="FileNotFoundException.h" />
     <ClInclude Include="ImageOperations.h" />
