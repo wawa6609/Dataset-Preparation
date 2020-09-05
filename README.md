@@ -67,7 +67,7 @@ The `multiple` parameter will be used in case of performing addition operation o
   
 ## Finding homography
 ```c++
-Mat findHomographyMatrix();
+Mat findHomographyMatrix(bool display=false);
 ```
 
 Function `findHomographyMatrix()` allows user to create an inverted matrix of homography. 
