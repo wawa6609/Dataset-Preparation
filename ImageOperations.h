@@ -13,7 +13,7 @@ using namespace cv;
 using namespace std::filesystem;
 using namespace std;
 
-typedef tuple <Mat*, vector<Point2f>*, bool, bool> MouseClickArgs;
+typedef struct  MouseClickArgs;
 
 bool askSave();
 

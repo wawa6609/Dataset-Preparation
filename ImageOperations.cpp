@@ -1,5 +1,11 @@
 #include "ImageOperations.h"
 
+typedef struct  MouseClickArgs {
+    Mat* image;
+    vector<Point2f>* points_in_image;
+    bool display;
+    bool draw;
+};
 
 bool askSave() {
     string answer;
@@ -170,15 +176,15 @@ void mouse_click(int event, int x, int y, int, void *params) {
     if (event == EVENT_LBUTTONDOWN)
     {
         MouseClickArgs *args =static_cast<MouseClickArgs*>(params);
-        Mat *image = get<0>(*args);
-        vector<Point2f>* points_in_image = get<1>(*args);
+        Mat *image = args->image;
+        vector<Point2f>* points_in_image = args->points_in_image;
         Point p(x, y);
         (*points_in_image).push_back(p);
 
-        if (get<2>(*args)) {
+        if (args->display) {
             cout << p << endl;
         }
-        if (get<3>(*args))
+        if (args->draw)
         {
             circle(*image, p, 5, CV_RGB(255, 0, 0));
             imshow("image", *image);
@@ -250,7 +256,7 @@ Mat findHomographyMatrix(bool display) {
     camera >> image;
     imshow("image", image);
     waitKey(1);
-    args = make_tuple(&image, &points_in_image, false, true);
+    args = { &image, &points_in_image, false, true };
     setMouseCallback("image", mouse_click, (void*)&args); 
     waitKey(1);
     imshow("image", image);
