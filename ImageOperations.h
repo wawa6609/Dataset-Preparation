@@ -17,14 +17,19 @@ typedef struct  MouseClickArgs;
 
 bool askSave();
 
-void createMask(Mat* mask, Mat* mask_inv, Mat* img, string* img_name);
+void createMask(Mat* mask, Mat* mask_inv, Mat* img, string img_name);
 
-void readMask(Mat* mask, Mat* mask_inv, Mat* img, string* img_name, bool show);
+void readMask(Mat* mask, Mat* mask_inv, Mat* img, string img_name, bool show = false);
 
 Rect centerImage(Mat* img1, Mat* img2);
 
-Mat addImages(Mat* img1, Mat* img2, string* img1_name, string* img2_name, bool* multiple);
+Mat addImages(Mat* img1, Mat* img2, string img1_name, string img2_name, bool multiple = false);
 
-Mat findHomographyMatrix(bool display=false);
+void mouse_click_points(int event, int x, int y, int, void* params);
 
-void transformImage();
+VideoCapture initializeCamera();
+
+Mat findHomographyMatrix(bool display = false);
+
+void transformImage(Mat* img1, Mat* img2, Mat* H, string img1_name, string img2_name, string h_name, bool multiple = false);
+void selectRoi(Mat* image, string img_name);

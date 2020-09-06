@@ -21,19 +21,25 @@ bool askSave() {
     }
 }
 
-void createMask(Mat *mask, Mat *mask_inv, Mat *img, string *img_name) {
+void createMask(Mat *mask, Mat *mask_inv, Mat *img, string img_name) {
     Mat img_gray;
     bool correct_thresh = false;
     int thresh = 127;
     string answer;
-    string mask_name = (*img_name).substr(0, (*img_name).find_last_of('.'));
+    string mask_name = img_name.substr(0, img_name.find_last_of('.'));
     mask_name += "_mask.png";
     cout << "Creating the mask" << endl;
     cout << "White color represents the background and black color represents the object" << endl;
     cvtColor((*img), img_gray, COLOR_BGR2GRAY);
     do {
         cout << "Trying with threshold of " << thresh << endl;
-        threshold(img_gray, *mask, thresh, 255, THRESH_BINARY);
+        if (thresh < 0) {
+            threshold(img_gray, *mask, -thresh, 255, THRESH_BINARY_INV);
+        }
+        else {
+            threshold(img_gray, *mask, thresh, 255, THRESH_BINARY);
+        }
+        
         bitwise_not(*mask, *mask_inv);
         destroyAllWindows();
         imshow("mask", *mask);
@@ -47,7 +53,7 @@ void createMask(Mat *mask, Mat *mask_inv, Mat *img, string *img_name) {
             break;
         }
         else if (answer == "n" || answer == "no") {
-            cout << "Please type custom treshold (0-255): ";
+            cout << "Please type custom threshold (-255 - 255): ";
             cin >> thresh;
             cout << endl;
         }
@@ -61,13 +67,11 @@ void createMask(Mat *mask, Mat *mask_inv, Mat *img, string *img_name) {
     cout << " and saved as " << mask_name << endl;
     cout << endl;
     destroyAllWindows();
-
-
 }
 
-void readMask(Mat* mask, Mat* mask_inv, Mat* img, string* img_name, bool show=false) {
+void readMask(Mat* mask, Mat* mask_inv, Mat* img, string img_name, bool show) {
     string mask_path = "masks/";
-    mask_path += (*img_name).substr(0, (*img_name).find_last_of('.'));
+    mask_path += img_name.substr(0, img_name.find_last_of('.'));
     mask_path += "_mask.png";
     cout << "Trying to read the mask" << endl;
     if (!test_exist(mask_path)) {
@@ -114,7 +118,7 @@ Rect centerImage(Mat *img1, Mat *img2) {
     return overlay;
 }
 
-Mat addImages(Mat *img1, Mat *img2, string *img1_name, string *img2_name, bool *multiple) {
+Mat addImages(Mat *img1, Mat *img2, string img1_name, string img2_name, bool multiple) {
     Mat roi;
     Mat img_fg, img_bg;
     Mat dst;
@@ -128,7 +132,7 @@ Mat addImages(Mat *img1, Mat *img2, string *img1_name, string *img2_name, bool *
     //imshow("img2", img2);
     //waitKey(0);
     cout << "Adding images" << endl;
-    if (!(*multiple)) {
+    if (!(multiple)) {
         save=askSave();
     }
     else {
@@ -154,25 +158,25 @@ Mat addImages(Mat *img1, Mat *img2, string *img1_name, string *img2_name, bool *
     (*img2).copyTo(result);
     dst.copyTo(result(overlay));
     if (save) {
-        result_filename = (*img1_name).substr(0, (*img1_name).find_last_of('.'));
+        result_filename = (img1_name).substr(0, (img1_name).find_last_of('.'));
         result_filename += '_';
-        result_filename += (*img2_name).substr(0, (*img2_name).find_last_of('.'));
+        result_filename += (img2_name).substr(0, (img2_name).find_last_of('.'));
         result_filename += ".png";
         imwrite("results/" + result_filename, result);
         cout << "Result saved as " << result_filename << endl;
     }
     destroyAllWindows();
-    if (!(*multiple)) {
-        putText(result, "Press ESC key to close the program", Point(10, 20), FONT_HERSHEY_COMPLEX, 0.5, CV_RGB(255, 0, 0));
+    if (!(multiple)) {
+        cout << "Press ESC key to close the program" << endl;
         imshow("result", result);
-        while (waitKey(0) != 27) {};
+        while (waitKey() != 27) {};
         destroyAllWindows();
     }
     cout << endl;
     return result;
 }
 
-void mouse_click(int event, int x, int y, int, void *params) {
+void mouse_click_points(int event, int x, int y, int, void *params) {
     if (event == EVENT_LBUTTONDOWN)
     {
         MouseClickArgs *args =static_cast<MouseClickArgs*>(params);
@@ -192,6 +196,41 @@ void mouse_click(int event, int x, int y, int, void *params) {
         }
     }
 }
+
+void mouse_click_rect(int event, int x, int y, int, void* params) {
+    static bool pinned = false;
+    if (event == EVENT_LBUTTONDOWN)
+    {
+        MouseClickArgs* args = static_cast<MouseClickArgs*>(params);
+        Mat* image = args->image;
+        vector<Point2f>* points_in_image = args->points_in_image;
+        Point p(x, y);
+        Rect roi;
+        (*points_in_image).push_back(p);
+
+
+        if (args->display) {
+            cout << p << endl;
+        }
+        if (!pinned) {
+            if (args->draw) {
+                circle(*image, p, 1, CV_RGB(0, 255, 0));
+                imshow("image", *image);
+                waitKey(1);
+            }
+            pinned = true;
+        }
+        
+        if (pinned) {
+            Rect roi((points_in_image->at(0)), (points_in_image->at(1)));
+            *image = (*image)(roi);
+            imshow("image", *image);
+            (*points_in_image).clear();
+            pinned = false;
+        }
+    }
+}
+
 
 VideoCapture initializeCamera() {
     VideoCapture camera;
@@ -234,6 +273,7 @@ Mat findHomographyMatrix(bool display) {
     MouseClickArgs args;
     vector<Point2f> points_in_image;
     vector<Point2f>  points_on_object{ { 0, 0 },{ 3 * 210, 0 },{ 3 * 210, 3 * 297 },{ 0, 3 * 297 } };
+    cout << "Finding homography matrix" << endl;
     bool save = askSave();
     VideoCapture camera(initializeCamera());    
 
@@ -252,12 +292,12 @@ Mat findHomographyMatrix(bool display) {
     	putText(image, String("Press ESC in order to capture still image"), Point(0, 25), 0, 1, CV_RGB(255, 0, 0), 2);
     	imshow("image", image);
     }
-
+    EVENT_MOUSEMOVE;
     camera >> image;
     imshow("image", image);
     waitKey(1);
     args = { &image, &points_in_image, false, true };
-    setMouseCallback("image", mouse_click, (void*)&args); 
+    setMouseCallback("image", mouse_click_points, (void*)&args); 
     waitKey(1);
     imshow("image", image);
     waitKey(500);
@@ -288,8 +328,36 @@ Mat findHomographyMatrix(bool display) {
     }
     return H_inv;
 }
+void selectRoi(Mat *image, string img_name ) {
+    MouseClickArgs args;
+    vector<Point2f> points_in_image;
+    args = { image, &points_in_image, false, true };
+    setMouseCallback("image", mouse_click_points, (void*)&args);
+}
 
 
-void transformImage() {
-
+void transformImage(Mat* img1, Mat* img2, Mat* H, string img1_name, string img2_name, string h_name, bool multiple) {
+    bool save;
+    string result_filename;
+    Mat result(addImages(img1, img2, img1_name, img2_name, true));
+    cout << "Transforming images" << endl;
+    if (!(multiple)) {
+        save = askSave();
+    }
+    else {
+        save = true;
+    }
+    warpPerspective(result, result, *H, result.size());
+    imshow("result", result);
+    if (save) {
+        string result_filename = img1_name.substr(0, img1_name.find_last_of('.'));
+        result_filename += '_';
+        result_filename += img2_name.substr(0, img2_name.find_last_of('.'));
+        result_filename += '_';
+        result_filename += h_name.substr(h_name.find_last_of('_') + 1, h_name.find_last_of('.') - h_name.find_last_of('_') - 1);
+        result_filename += ".png";
+        imwrite("results/" + result_filename, result);
+        cout << "Result saved as " << result_filename << endl;
+    }
+    waitKey(0);
 }
