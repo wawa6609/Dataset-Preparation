@@ -176,7 +176,7 @@ Mat addImages(Mat *img1, Mat *img2, string img1_name, string img2_name, bool mul
     return result;
 }
 
-void mouse_click_points(int event, int x, int y, int, void *params) {
+void mouse_click(int event, int x, int y, int, void *params) {
     if (event == EVENT_LBUTTONDOWN)
     {
         MouseClickArgs *args =static_cast<MouseClickArgs*>(params);
@@ -193,40 +193,6 @@ void mouse_click_points(int event, int x, int y, int, void *params) {
             circle(*image, p, 5, CV_RGB(255, 0, 0));
             imshow("image", *image);
             waitKey(1);
-        }
-    }
-}
-
-void mouse_click_rect(int event, int x, int y, int, void* params) {
-    static bool pinned = false;
-    if (event == EVENT_LBUTTONDOWN)
-    {
-        MouseClickArgs* args = static_cast<MouseClickArgs*>(params);
-        Mat* image = args->image;
-        vector<Point2f>* points_in_image = args->points_in_image;
-        Point p(x, y);
-        Rect roi;
-        (*points_in_image).push_back(p);
-
-
-        if (args->display) {
-            cout << p << endl;
-        }
-        if (!pinned) {
-            if (args->draw) {
-                circle(*image, p, 1, CV_RGB(0, 255, 0));
-                imshow("image", *image);
-                waitKey(1);
-            }
-            pinned = true;
-        }
-        
-        if (pinned) {
-            Rect roi((points_in_image->at(0)), (points_in_image->at(1)));
-            *image = (*image)(roi);
-            imshow("image", *image);
-            (*points_in_image).clear();
-            pinned = false;
         }
     }
 }
@@ -297,7 +263,7 @@ Mat findHomographyMatrix(bool display) {
     imshow("image", image);
     waitKey(1);
     args = { &image, &points_in_image, false, true };
-    setMouseCallback("image", mouse_click_points, (void*)&args); 
+    setMouseCallback("image", mouse_click, (void*)&args); 
     waitKey(1);
     imshow("image", image);
     waitKey(500);
@@ -329,10 +295,20 @@ Mat findHomographyMatrix(bool display) {
     return H_inv;
 }
 void selectRoi(Mat *image, string img_name ) {
+    Mat image_copy;
     MouseClickArgs args;
     vector<Point2f> points_in_image;
-    args = { image, &points_in_image, false, true };
-    setMouseCallback("image", mouse_click_points, (void*)&args);
+    (*image).copyTo(image_copy);
+    args = { &image_copy, &points_in_image, false, true };
+    putText(image_copy, "Click on the top left and bottom right corner\nof rectangle bounding the object.", Point(10, 10), FONT_HERSHEY_COMPLEX, 0.5, CV_RGB(255, 0, 0));
+    imshow("image", image_copy);
+    waitKey(1);
+    setMouseCallback("image", mouse_click, (void*)&args);
+    while (points_in_image.size() < 2) waitKey(1);
+    Rect roi((points_in_image.at(0)), (points_in_image.at(1)));
+    *image = (*image)(roi);
+    imshow("image", *image);
+    waitKey(0);
 }
 
 

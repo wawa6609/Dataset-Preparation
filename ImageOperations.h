@@ -25,7 +25,7 @@ Rect centerImage(Mat* img1, Mat* img2);
 
 Mat addImages(Mat* img1, Mat* img2, string img1_name, string img2_name, bool multiple = false);
 
-void mouse_click_points(int event, int x, int y, int, void* params);
+void mouse_click(int event, int x, int y, int, void* params);
 
 VideoCapture initializeCamera();
 

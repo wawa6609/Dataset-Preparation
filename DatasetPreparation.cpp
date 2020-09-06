@@ -17,13 +17,13 @@ int main()
     bool multiple=false;
     srand(time(NULL));
     selectImages(&img1, &img2, &img1_name, &img2_name);
-    vector<Point2f> points_in_image;
-    h_name = selectFile(MAT_DIR);
-    H = readMatrix(h_name);
-    //createMask(&mask, &mask_inv, &img1, &img1_name);
+    //h_name = selectFile(MAT_DIR);
+    //H = readMatrix(h_name);
+    //createMask(&mask, &mask_inv, &img1, img1_name);
     //transformImage(&img1, &img2, &H, img1_name, img2_name, h_name);
-    findHomographyMatrix();
+    //findHomographyMatrix();
     selectRoi(&img1, img1_name);
+    createMask(&mask, &mask_inv, &img1, img1_name);
     waitKey(1);
     return 0;
 }
