@@ -96,7 +96,7 @@ void saveMatrix(Mat m) {
 }
 
 Mat readMatrix(string filename, bool display) {
-    Mat m=Mat::zeros(3,3,CV_32F);
+    Mat m=Mat::zeros(3,3, CV_32F);
     ifstream file;
     float num;
     int start_pos=0, end_pos=0;
@@ -111,4 +111,121 @@ Mat readMatrix(string filename, bool display) {
         cout << m << endl;
     }
     return m;
+}
+
+vector<string> createConfig() {
+    int num_of_classes;
+    ofstream f1, f2;
+    string classname;
+    string filename;
+    vector<string> classlist;
+    filename = "obj.data";
+    f1.open(DATA_DIR+filename, ios::out);
+    cout << "Type number of classes: ";
+    cin >> num_of_classes;
+    cout << endl;
+    f1 << "classes = " << num_of_classes << endl;
+    f1 << "train = data/train.txt" << endl;
+    f1 << "valid = data/valid.txt" << endl;
+    f1 << "names = data/obj.names" << endl;
+    f1 << "backup = backup/" << endl;
+    f1.close();
+
+    filename = "obj.names";
+    f2.open(DATA_DIR + filename, ios::out);
+    cout << "Type classnames line by line" << endl;
+    cout << "(use '_' instead of space)" << endl;
+    for (int i = 0; i < num_of_classes; i++) {
+        cin >> classname;
+        f2 << classname << endl;
+        classlist.push_back(classname);
+    }
+    f2.close();
+    return classlist;
+}
+
+vector<string> readClasses() {
+    string line;
+    ifstream f1,f2;
+    string filename;
+    string classname;
+    vector<string> classlist;
+    int num_of_classes;
+    int start_pos, end_pos, count;
+    filename = "obj.data";
+    try {
+        if (!test_exist(DATA_DIR+filename)) {
+            string msg = "File ";
+            msg += filename;
+            msg += " not found in ";
+            msg += DATA_DIR;
+            throw FileNotFoundException(msg, -1, -1);
+        }
+        else {
+            f1.open(DATA_DIR + filename, ios::in);
+            getline(f1, line);
+            f1.close();
+            start_pos = line.find('=') + 2;
+            end_pos = line.length();
+            count = end_pos - start_pos;
+            num_of_classes = stoi((line.substr(start_pos, count)));
+            filename = "obj.names";
+            f2.open(DATA_DIR + filename, ios::in);
+            for (int i = 0; i < num_of_classes; i++) {
+                f2 >> classname;
+                classlist.push_back(classname);
+            }
+            f2.close();
+        }
+    }
+    catch (FileNotFoundException e) {
+        classlist=createConfig();
+    }
+    return classlist;
+}
+
+int readClass(string img_filename, vector<string> classlist) {
+    string filename;
+    ifstream f;
+    int classid;
+    try {
+        filename = img_filename.substr(0, img_filename.find_last_of('.'));
+        filename += ".txt";
+        if (!test_exist(CLASS_DIR + filename)) {
+            string msg = "File ";
+            msg += filename;
+            msg += " not found in ";
+            msg += CLASS_DIR;
+            throw FileNotFoundException(msg, -1, -1);
+        }
+        else {
+            f.open(CLASS_DIR + filename, ios::in);
+            f >> classid;
+            f.close();
+        }
+    }
+    catch (FileNotFoundException e) {
+        classid=askClass(img_filename, classlist);
+    }
+    return classid;
+}
+
+int askClass(string img_filename, vector<string> classlist) {
+    int classid;
+    ofstream f;
+    string filename;
+    cout << "Select class number" << endl;
+    for (int i = 0; i < classlist.size(); i++) {
+        cout << i+1 << ". " << classlist.at(i) << endl;
+    }
+    cout << "Class number: ";
+    cin >> classid;
+    cout << endl;
+    classid -= 1;
+    filename = img_filename.substr(0, img_filename.find_last_of('.'));
+    filename += ".txt";
+    f.open(CLASS_DIR + filename, ios::out);
+    f << classid;
+    f.close();
+    return classid;
 }
