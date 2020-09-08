@@ -241,10 +241,12 @@ YoloData randomAddImages(Mat* img1, Mat* img2, string img1_name, string img2_nam
     /*imshow("img_fg", img_fg);
     waitKey(0);*/
     add(img_bg, img_fg, dst);
+    
     (*img2).copyTo(result);
     dst.copyTo(result(overlay));
     uc = toUnified(&result, overlay);
     classid = readClass(img1_name, classlist);
+    blur(result, result, Size(2, 2), Point(-1, -1));
     result.copyTo(*img2);
     data = {classid, uc};
     if (save) {

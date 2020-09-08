@@ -2,3 +2,7 @@ results/nnptdhqwek.png
 results/tgaslcswdx.png
 results/swvcwvsujb.png
 results/kaddmbnvoc.png
+results/meloemeswk.png
+results/20gr_back_darkwood.png
+results/20gr_back_hardwood.png
+results/10gr_front_hardwood.png

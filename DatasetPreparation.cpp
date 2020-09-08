@@ -27,7 +27,7 @@ int main()
     //transformImage(&img1, &img2, &H, img1_name, img2_name, h_name);
     //findHomographyMatrix();
     //createMask(&mask, &mask_inv, &img1, img1_name);
-    YoloData data=randomAddImages(&img1, &img2, img1_name, img2_name,true);
+    YoloData data=randomAddImages(&img1, &img2, img1_name, img2_name);
     transformImage(&img2, &H, &data);
  /*   readMask(&mask, &mask_inv, &img1, img1_name);
     rotateImage(&img1, &mask, &mask_inv, 30, true);
