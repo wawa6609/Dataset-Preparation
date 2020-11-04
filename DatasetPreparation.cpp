@@ -15,15 +15,25 @@ int main()
     string img1_name, img2_name;
     string h_name;
     bool multiple=false;
+    int alpha, beta, gamma, f, dist;
     srand(time(NULL));
+    
+    
+    
     selectImages(&img1, &img2, &img1_name, &img2_name);
     //h_name = selectFile(MAT_DIR);
     //H = readMatrix(h_name);
+    
+    
     //createMask(&mask, &mask_inv, &img1, img1_name);
-    //transformImage(&img1, &img2, &H, img1_name, img2_name, h_name);
+    //readParameters(alpha, beta, gamma, f, dist);
+    //H = calculateParametrizedMatrix(alpha, beta, gamma, f, dist);
+    H = calculateParametrizedMatrix(90, 85, 90, 500, 500);
+    transformImage(&img1, &img2, &H, img1_name, img2_name, h_name);
     //findHomographyMatrix();
-    selectRoi(&img1, img1_name);
-    createMask(&mask, &mask_inv, &img1, img1_name);
+    
+    
+    //createMask(&mask, &mask_inv, &img1, img1_name);
     waitKey(1);
     return 0;
 }

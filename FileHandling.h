@@ -7,7 +7,6 @@
 #include <fstream>
 
 #include "opencv2/opencv.hpp"
-#include "FileNotFoundException.h"
 
 using namespace cv;
 using namespace std::filesystem;
@@ -27,7 +26,7 @@ string selectFile(string directory);
 
 void selectImages(Mat *img1, Mat *img2, string *img1_name, string *img2_name);
 string generateHash();
-void saveMatrix(Mat m);
+void saveMatrix(Mat &m);
 Mat readMatrix(string filename, bool display = false);
 
 

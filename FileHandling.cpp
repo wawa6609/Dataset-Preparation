@@ -75,9 +75,10 @@ string generateHash() {
     return hash;
 }
 
-void saveMatrix(Mat m) {
+void saveMatrix(Mat &m) {
     string filename;
     ofstream file;
+    cout << m << endl;
     do {
         filename = "matrix_" + generateHash() + ".txt";
     } while (test_exist(MAT_DIR + filename));
@@ -85,11 +86,15 @@ void saveMatrix(Mat m) {
     for (int i = 0; i < m.rows; i++) {
         for (int j = 0; j < m.cols; j++) {
             if (j != 0) {
+                cout<< " ";
                 file << " ";
             }
-            file << round((m.at<double>(i,j)*100))/100;
+            file << round((m.at<float>(i,j)*100))/100;
+            cout << round((m.at<float>(i, j) * 100)) / 100;
+
         }
         file << endl;
+        cout << endl;
     }
     file.close();
     cout << "File saved as " << filename << endl;

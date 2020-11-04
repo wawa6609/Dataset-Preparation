@@ -1,5 +1,9 @@
 #include "ImageOperations.h"
 
+
+const int imgWidth = 1280;
+const int imgHeight = 720;
+
 typedef struct  MouseClickArgs {
     Mat* image;
     vector<Point2f>* points_in_image;
@@ -29,6 +33,7 @@ void createMask(Mat *mask, Mat *mask_inv, Mat *img, string img_name) {
     string mask_name = img_name.substr(0, img_name.find_last_of('.'));
     mask_name += "_mask.png";
     cout << "Creating the mask" << endl;
+    selectRoi(img, img_name);
     cout << "White color represents the background and black color represents the object" << endl;
     cvtColor((*img), img_gray, COLOR_BGR2GRAY);
     do {
@@ -80,7 +85,7 @@ void readMask(Mat* mask, Mat* mask_inv, Mat* img, string img_name, bool show) {
         msg += " not found in ";
         msg += mask_path.substr(0, mask_path.find_last_of('/'));
         msg += " directory";
-        throw FileNotFoundException(msg, -1, -1);
+        throw FileNotFoundException(msg,-1,-1);
     }
     *mask = imread(mask_path, IMREAD_GRAYSCALE);
     bitwise_not(*mask, *mask_inv);
@@ -228,8 +233,8 @@ VideoCapture initializeCamera() {
         }
     }
     
-    camera.set(CAP_PROP_FRAME_WIDTH, 1280);
-    camera.set(CAP_PROP_FRAME_HEIGHT, 720);
+    camera.set(CAP_PROP_FRAME_WIDTH, imgWidth);
+    camera.set(CAP_PROP_FRAME_HEIGHT, imgHeight);
 
     return camera;
 }
@@ -244,7 +249,7 @@ Mat findHomographyMatrix(bool display) {
     VideoCapture camera(initializeCamera());    
 
     try {
-        if (!camera.isOpened()) throw CameraNotAvailableException("Camera not available", -1, -1);
+        if (!camera.isOpened()) throw CameraNotAvailableException("Camera not available",-1,-1);
     }
     catch (const CameraNotAvailableException& e) {
         cerr << e.what() << endl;
@@ -336,4 +341,106 @@ void transformImage(Mat* img1, Mat* img2, Mat* H, string img1_name, string img2_
         cout << "Result saved as " << result_filename << endl;
     }
     waitKey(0);
+}
+
+
+int frameWidth = 640;
+int frameHeight = 480;
+
+/*
+ * This code illustrates bird's eye view perspective transformation using opencv
+ * Paper: Distance Determination for an Automobile Environment using Inverse Perspective Mapping in OpenCV
+ * Link to paper: https://www.researchgate.net/publication/224195999_Distance_determination_for_an_automobile_environment_using_Inverse_Perspective_Mapping_in_OpenCV
+ * Code taken from: http://www.aizac.info/birds-eye-view-homography-using-opencv/
+ */
+
+Mat calculateParametrizedMatrix(int alpha_, int beta_, int gamma_, int f_, int dist_){
+    bool save = askSave();
+
+
+    double focalLength, dist, alpha, beta, gamma;
+
+    alpha = ((double)alpha_ - 90) * M_PI / 180;
+    beta = ((double)beta_ - 90) * M_PI / 180;
+    gamma = ((double)gamma_ - 90) * M_PI / 180;
+    focalLength = (double)f_;
+    dist = (double)dist_;
+
+    Size image_size = Size(imgWidth,imgHeight);
+    double w = (double)image_size.width, h = (double)image_size.height;
+
+
+    // Projecion matrix 2D -> 3D
+    Mat A1 = (Mat_<float>(4, 3) <<
+        1, 0, -w / 2,
+        0, 1, -h / 2,
+        0, 0, 0,
+        0, 0, 1);
+    cout << "A1:" << endl << A1 << endl;
+
+
+    // Rotation matrices Rx, Ry, Rz
+
+    Mat RX = (Mat_<float>(4, 4) <<
+        1, 0, 0, 0,
+        0, cos(alpha), -sin(alpha), 0,
+        0, sin(alpha), cos(alpha), 0,
+        0, 0, 0, 1);
+    //cout << "RX:" << endl << RX << endl;
+
+    Mat RY = (Mat_<float>(4, 4) <<
+        cos(beta), 0, -sin(beta), 0,
+        0, 1, 0, 0,
+        sin(beta), 0, cos(beta), 0,
+        0, 0, 0, 1);
+    //cout << "RY:" << endl << RY << endl;
+
+    Mat RZ = (Mat_<float>(4, 4) <<
+        cos(gamma), -sin(gamma), 0, 0,
+        sin(gamma), cos(gamma), 0, 0,
+        0, 0, 1, 0,
+        0, 0, 0, 1);
+    //cout << "RZ:" << endl << RZ << endl;
+
+
+    // R - rotation matrix
+    Mat R = RX * RY * RZ;
+    //cout << "R:" << endl << R << endl;
+
+    // T - translation matrix
+    Mat T = (Mat_<float>(4, 4) <<
+        1, 0, 0, 0,
+        0, 1, 0, 0,
+        0, 0, 1, dist,
+        0, 0, 0, 1);
+    //cout << "T:" << endl << T << endl;
+
+    // K - intrinsic matrix 
+    Mat K = (Mat_<float>(3, 4) <<
+        focalLength, 0, w / 2, 0,
+        0, focalLength, h / 2, 0,
+        0, 0, 1, 0
+        );
+    //cout << "K:" << endl << K << endl;
+
+
+    Mat transformationMat = K * (T * (R * A1));
+    cout << "transformationMat:" << endl << transformationMat << endl;
+    if (save) {
+        saveMatrix(transformationMat);
+    }
+    return transformationMat;
+}
+
+void readParameters(int &alpha_, int &beta_, int &gamma_, int &f_, int &dist_) {
+    cout << "alpha (0-180): ";
+    cin >> alpha_;
+    cout << "beta (0-180): ";
+    cin >> beta_;
+    cout << "gamma (0-180): ";
+    cin >> gamma_;
+    cout << "f [mm]: ";
+    cin >> f_;
+    cout << "dist [mm]: ";
+    cin >> dist_;
 }
