@@ -13,8 +13,6 @@
 #include "FileNotFoundException.h"
 #include "CameraNotAvailableException.h"
 
-
-
 using namespace cv;
 using namespace std::filesystem;
 using namespace std;
@@ -36,7 +34,7 @@ void mouse_click(int event, int x, int y, int, void* params);
 VideoCapture initializeCamera();
 
 Mat calculateParametrizedMatrix(int alpha_ = 90, int beta_ = 90, int gamma_ = 90,
-    int f_ = 500, int dist_ = 500);
+	int f_ = 500, int dist_ = 500);
 Mat findHomographyMatrix(bool display = false);
 
 void transformImage(Mat* img1, Mat* img2, Mat* H, string img1_name, string img2_name, string h_name, bool multiple = false);
