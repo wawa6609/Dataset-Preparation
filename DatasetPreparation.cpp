@@ -28,7 +28,7 @@ int main()
     //createMask(&mask, &mask_inv, &img1, img1_name);
     //readParameters(alpha, beta, gamma, f, dist);
     //H = calculateParametrizedMatrix(alpha, beta, gamma, f, dist);
-    H = calculateParametrizedMatrix(90, 85, 90, 500, 500);
+    H = calculateParametrizedMatrix(85, 90, 90, 500, 500);
     transformImage(&img1, &img2, &H, img1_name, img2_name, h_name);
     //findHomographyMatrix();
     

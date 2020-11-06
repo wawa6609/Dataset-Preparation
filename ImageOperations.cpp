@@ -299,6 +299,7 @@ Mat findHomographyMatrix(bool display) {
     }
     return H_inv;
 }
+
 void selectRoi(Mat *image, string img_name ) {
     Mat image_copy;
     MouseClickArgs args;
