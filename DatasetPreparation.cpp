@@ -20,16 +20,16 @@ int main()
     
     
     
-    selectImages(&img1, &img2, &img1_name, &img2_name);
+    selectImages(img1, img2, img1_name, img2_name);
     //h_name = selectFile(MAT_DIR);
     //H = readMatrix(h_name);
     
     
-    createMask(&mask, &mask_inv, &img1, img1_name);
+    createMask(mask, mask_inv, img1, img1_name);
     //readParameters(alpha, beta, gamma, f, dist);
     //H = calculateParametrizedMatrix(alpha, beta, gamma, f, dist);
     H = calculateParametrizedMatrix(85, 90, 90, 500, 500);
-    transformImage(&img1, &img2, &H, img1_name, img2_name, h_name);
+    transformImage(img1, img2, H, img1_name, img2_name, h_name);
     //findHomographyMatrix();
 
     waitKey(1);

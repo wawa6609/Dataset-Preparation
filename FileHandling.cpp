@@ -5,21 +5,21 @@ bool test_exist(string name) {
 	return (stat(name.c_str(), &buffer) == 0);
 }
 
-void listFiles(string directory, vector<string>* files) {
+void listFiles(string directory, vector<string>& files) {
 	int i = 1;
 	path pathToDisplay(directory);
 
 	for (const auto& entry : directory_iterator(pathToDisplay)) {
 		const auto filename = entry.path().filename().string();
 		if (entry.is_regular_file()) {
-			(*files).push_back(filename);
+			(files).push_back(filename);
 		}
 	}
 }
 
 string selectFile(string directory) {
 	vector<string> files;
-	listFiles(directory, &files);
+	listFiles(directory, files);
 	int selection = 0;
 	int len = files.size();
 
@@ -52,16 +52,16 @@ string selectFile(string directory) {
 	return (files[selection]);
 }
 
-void selectImages(Mat* img1, Mat* img2, string* img1_name, string* img2_name) {
+void selectImages(Mat& img1, Mat& img2, string& img1_name, string& img2_name) {
 	cout << "SELECT IMAGES" << endl;
 	cout << "Selecting object" << endl;
-	*img1_name = selectFile(OBJ_DIR);
+	img1_name = selectFile(OBJ_DIR);
 	cout << "Selecting background" << endl;
-	*img2_name = selectFile(BG_DIR);
-	*img1 = imread(OBJ_DIR + *img1_name);
-	cout << "Reading " << OBJ_DIR << *img1_name << " as img1" << endl;
-	*img2 = imread(BG_DIR + *img2_name);
-	cout << "Reading " << BG_DIR << *img2_name << " as img2" << endl;
+	img2_name = selectFile(BG_DIR);
+	img1 = imread(OBJ_DIR + img1_name);
+	cout << "Reading " << OBJ_DIR << img1_name << " as img1" << endl;
+	img2 = imread(BG_DIR + img2_name);
+	cout << "Reading " << BG_DIR << img2_name << " as img2" << endl;
 	cout << endl;
 }
 
@@ -90,10 +90,10 @@ void saveMatrix(Mat& m) {
 				file << " ";
 			}
 			file << round((m.at<float>(i, j) * 100)) / 100;
-			cout << round((m.at<float>(i, j) * 100)) / 100;
+			//cout << round((m.at<float>(i, j) * 100)) / 100;
 		}
 		file << endl;
-		cout << endl;
+		//cout << endl;
 	}
 	file.close();
 	cout << "File saved as " << filename << endl;

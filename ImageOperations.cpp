@@ -24,7 +24,7 @@ bool askSave() {
 	}
 }
 
-void createMask(Mat* mask, Mat* mask_inv, Mat* img, string img_name) {
+void createMask(Mat& mask, Mat& mask_inv, Mat& img, string img_name) {
 	Mat img_gray;
 	bool correct_thresh = false;
 	int thresh = 127;
@@ -34,19 +34,19 @@ void createMask(Mat* mask, Mat* mask_inv, Mat* img, string img_name) {
 	cout << "Creating the mask" << endl;
 	selectRoi(img, img_name);
 	cout << "White color represents the background and black color represents the object" << endl;
-	cvtColor((*img), img_gray, COLOR_BGR2GRAY);
+	cvtColor((img), img_gray, COLOR_BGR2GRAY);
 	do {
 		cout << "Trying with threshold of " << thresh << endl;
 		if (thresh < 0) {
-			threshold(img_gray, *mask, -thresh, 255, THRESH_BINARY_INV);
+			threshold(img_gray, mask, -thresh, 255, THRESH_BINARY_INV);
 		}
 		else {
-			threshold(img_gray, *mask, thresh, 255, THRESH_BINARY);
+			threshold(img_gray, mask, thresh, 255, THRESH_BINARY);
 		}
 
-		bitwise_not(*mask, *mask_inv);
+		bitwise_not(mask, mask_inv);
 		destroyAllWindows();
-		imshow("mask", *mask);
+		imshow("mask", mask);
 		waitKey(1);
 		cout << "Is the threshold correct? [Y/N]: ";
 		cin >> answer;
@@ -66,13 +66,13 @@ void createMask(Mat* mask, Mat* mask_inv, Mat* img, string img_name) {
 		}
 	} while (!correct_thresh);
 	cout << "Mask created";
-	imwrite(("masks/" + mask_name), *mask);
+	imwrite(("masks/" + mask_name), mask);
 	cout << " and saved as " << mask_name << endl;
 	cout << endl;
 	destroyAllWindows();
 }
 
-void readMask(Mat* mask, Mat* mask_inv, Mat* img, string img_name, bool show) {
+void readMask(Mat& mask, Mat& mask_inv, Mat& img, string img_name, bool show) {
 	string mask_path = "masks/";
 	mask_path += img_name.substr(0, img_name.find_last_of('.'));
 	mask_path += "_mask.png";
@@ -85,12 +85,12 @@ void readMask(Mat* mask, Mat* mask_inv, Mat* img, string img_name, bool show) {
 		msg += " directory";
 		throw FileNotFoundException(msg, -1, -1);
 	}
-	*mask = imread(mask_path, IMREAD_GRAYSCALE);
-	bitwise_not(*mask, *mask_inv);
+	mask = imread(mask_path, IMREAD_GRAYSCALE);
+	bitwise_not(mask, mask_inv);
 	if (show) {
 		destroyAllWindows();
-		imshow("mask", *mask);
-		imshow("mask_inv", *mask_inv);
+		imshow("mask", mask);
+		imshow("mask_inv", mask_inv);
 		waitKey(0);
 	}
 	destroyAllWindows();
@@ -98,22 +98,22 @@ void readMask(Mat* mask, Mat* mask_inv, Mat* img, string img_name, bool show) {
 	cout << endl;
 }
 
-Rect centerImage(Mat* img1, Mat* img2) {
+Rect centerImage(Mat& img1, Mat& img2) {
 	int cx, cy;// center coordinates
 	int x1, y1;//top coordinates of centered rectangle
 	int w, h;// width and heigth of the centered rectangle
 
-	if (((*img1).cols > (*img2).cols) || ((*img1).rows > (*img2).rows)) {
-		double k = min(((*img2).cols / (double)(*img1).cols), ((*img2).rows / (double)(*img1).rows));
-		int width = k * (*img1).cols;
-		int height = k * (*img1).rows;
-		resize(*img1, *img1, Size(width, height));
+	if (((img1).cols > (img2).cols) || ((img1).rows > (img2).rows)) {
+		double k = min(((img2).cols / (double)(img1).cols), ((img2).rows / (double)(img1).rows));
+		int width = k * (img1).cols;
+		int height = k * (img1).rows;
+		resize(img1, img1, Size(width, height));
 	}
 
-	w = (*img1).cols;
-	h = (*img1).rows;
-	cx = (*img2).cols / 2;
-	cy = (*img2).rows / 2;
+	w = (img1).cols;
+	h = (img1).rows;
+	cx = (img2).cols / 2;
+	cy = (img2).rows / 2;
 	x1 = cx - (w / 2);
 	y1 = cy - (h / 2);
 
@@ -121,7 +121,7 @@ Rect centerImage(Mat* img1, Mat* img2) {
 	return overlay;
 }
 
-Mat addImages(Mat* img1, Mat* img2, string img1_name, string img2_name, bool multiple) {
+Mat addImages(Mat& img1, Mat& img2, string img1_name, string img2_name, bool multiple) {
 	Mat roi;
 	Mat img_fg, img_bg;
 	Mat dst;
@@ -142,23 +142,23 @@ Mat addImages(Mat* img1, Mat* img2, string img1_name, string img2_name, bool mul
 		save = true;
 	}
 	try {
-		readMask(&mask, &mask_inv, img1, img1_name);
+		readMask(mask, mask_inv, img1, img1_name);
 	}
 	catch (exception) {
-		createMask(&mask, &mask_inv, img1, img1_name);
+		createMask(mask, mask_inv, img1, img1_name);
 	}
-	(*img2)(overlay).copyTo(roi);
+	(img2)(overlay).copyTo(roi);
 	/*imshow("roi", roi);
 	waitKey(0);*/
 	//return;
 	bitwise_and(roi, roi, img_bg, mask);
 	/*imshow("img_bg", img_bg);
 	waitKey(0);*/
-	bitwise_and(*img1, *img1, img_fg, mask_inv);
+	bitwise_and(img1, img1, img_fg, mask_inv);
 	//imshow("img_fg", img_fg);
 	//waitKey(0);
 	add(img_bg, img_fg, dst);
-	(*img2).copyTo(result);
+	(img2).copyTo(result);
 	dst.copyTo(result(overlay));
 	if (save) {
 		result_filename = (img1_name).substr(0, (img1_name).find_last_of('.'));
@@ -295,12 +295,12 @@ Mat findHomographyMatrix(bool display) {
 	return H_inv;
 }
 
-void selectRoi(Mat* image, string img_name) {
+void selectRoi(Mat& image, string img_name) {
 	Mat image_copy;
 	MouseClickArgs args;
 	vector<Point2f> points_in_image;
 	cout << "SELECT ROI" << endl;
-	(*image).copyTo(image_copy);
+	(image).copyTo(image_copy);
 	args = { &image_copy, &points_in_image, false, true };
 	putText(image_copy, "Click on the top left and bottom right corner\nof rectangle bounding the object.", Point(10, 10), FONT_HERSHEY_COMPLEX, 0.5, CV_RGB(255, 0, 0));
 	imshow("image", image_copy);
@@ -308,12 +308,12 @@ void selectRoi(Mat* image, string img_name) {
 	setMouseCallback("image", mouse_click, (void*)&args);
 	while (points_in_image.size() < 2) waitKey(1);
 	Rect roi((points_in_image.at(0)), (points_in_image.at(1)));
-	*image = (*image)(roi);
-	imshow("image", *image);
+	image = (image)(roi);
+	imshow("image", image);
 	waitKey(0);
 }
 
-void transformImage(Mat* img1, Mat* img2, Mat* H, string img1_name, string img2_name, string h_name, bool multiple) {
+void transformImage(Mat& img1, Mat& img2, Mat& H, string img1_name, string img2_name, string h_name, bool multiple) {
 	bool save;
 	string result_filename;
 	Mat result(addImages(img1, img2, img1_name, img2_name, true));
@@ -324,7 +324,7 @@ void transformImage(Mat* img1, Mat* img2, Mat* H, string img1_name, string img2_
 	else {
 		save = true;
 	}
-	warpPerspective(result, result, *H, result.size());
+	warpPerspective(result, result, H, result.size());
 	imshow("result", result);
 	if (save) {
 		string result_filename = img1_name.substr(0, img1_name.find_last_of('.'));
@@ -369,7 +369,7 @@ Mat calculateParametrizedMatrix(int alpha_, int beta_, int gamma_, int f_, int d
 		0, 1, -h / 2,
 		0, 0, 0,
 		0, 0, 1);
-	cout << "A1:" << endl << A1 << endl;
+	//cout << "A1:" << endl << A1 << endl;
 
 	// Rotation matrices Rx, Ry, Rz
 
@@ -415,7 +415,7 @@ Mat calculateParametrizedMatrix(int alpha_, int beta_, int gamma_, int f_, int d
 	//cout << "K:" << endl << K << endl;
 
 	Mat transformationMat = K * (T * (R * A1));
-	cout << "transformationMat:" << endl << transformationMat << endl;
+	//cout << "transformationMat:" << endl << transformationMat << endl;
 	if (save) {
 		saveMatrix(transformationMat);
 	}
