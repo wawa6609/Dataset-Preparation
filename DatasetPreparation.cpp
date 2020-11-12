@@ -25,7 +25,7 @@ int main()
     //H = readMatrix(h_name);
     
     
-    createMask(mask, mask_inv, img1, img1_name);
+    //createMask(mask, mask_inv, img1, img1_name);
     //readParameters(alpha, beta, gamma, f, dist);
     //H = calculateParametrizedMatrix(alpha, beta, gamma, f, dist);
     H = calculateParametrizedMatrix(85, 90, 90, 500, 500);
